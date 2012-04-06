@@ -3,6 +3,8 @@
 .classpath
 .loadpath
 
+bin/**
+
 *.class
 *.jar
 *.war
