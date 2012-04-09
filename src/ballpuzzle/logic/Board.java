@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import ballpuzzle.tiles.*;
+import ballpuzzle.util.BallLoopException;
 import ballpuzzle.util.Direction;
 import ballpuzzle.util.Resource;
 import ballpuzzle.util.Symbol;
@@ -124,8 +125,17 @@ public class Board {
 		ball_.setMovementDirection(movement_direction);
 	}
 	
+	public boolean isEnd(Point point) {
+		return tileset_[point.y][point.x].getClass() == Goal.class;
+	}
+	
+	
 	public Point getBallPosition() {
 		return ball_.getPosition();
+	}
+	
+	public void setBallPosition(Point new_pos) {
+		ball_.setPosition(new_pos);
 	}
 	
 	private void updateBallPosition() {
@@ -177,12 +187,15 @@ public class Board {
 	
 	// Esta função é usada nos testes e será usada nos algoritmos porque não depende do timer; apenas
 	// mexe na lógica.
-	public boolean moveBall(Direction movement_direction) {
+	public boolean moveBall(Direction movement_direction) throws BallLoopException {
 		setBallMovementDirection(movement_direction);
 		boolean result = false;
+		Point initial_pos = (Point) ball_.getPosition().clone();
 		
 		while (ball_.isMoving()) {
 			result = moveBall();
+			if (ball_.getPosition().x == initial_pos.x && ball_.getPosition().y == initial_pos.y)
+				throw new BallLoopException();
 		}
 		
 		return result;
