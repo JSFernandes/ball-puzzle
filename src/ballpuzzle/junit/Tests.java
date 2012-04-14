@@ -2,6 +2,7 @@ package ballpuzzle.junit;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.awt.Point;
 
@@ -84,6 +85,8 @@ public class Tests {
 		graph.generateGraph();
 		assertEquals(graph.game_graph_.vertexSet().size(), 2);
 		assertEquals(graph.game_graph_.edgeSet().size(), 1);
+		System.out.println(graph.game_graph_.edgeSet().toArray()[0]);
+		assertNotNull(graph.game_graph_.getEdge(new Point(4, 9), new Point(15, 9)));
 	}
 
 }

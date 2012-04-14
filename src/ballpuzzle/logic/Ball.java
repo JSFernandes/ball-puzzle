@@ -62,7 +62,8 @@ public class Ball implements Drawable {
 	}
 	
 	public void setPosition(Point position) {
-		position_ = position;
+		position_.x = position.x;
+		position_.y = position.y;
 	}
 	
 	private final Color color_ = Color.RED;
