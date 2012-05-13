@@ -31,7 +31,6 @@ public class GraphViewer extends JApplet{
 	
 	public void init() {
 		 m_jgAdapter_ = new JGraphModelAdapter<Point, DefaultWeightedEdge>(game_graph_);
-
 		 JGraph jgraph = new JGraph(m_jgAdapter_);
 		 
 		 adjustDisplaySettings( jgraph );

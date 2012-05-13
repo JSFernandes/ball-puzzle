@@ -76,6 +76,10 @@ public class PuzzleGraph {
 		}
 	}
 	
+	public Board getGame() {
+		return game_state_;
+	}
+	
 	//TODO TROLHICE PARA TESTAR
 	public static void main(String[] args) {
 		Board board = new Board("level_4.dat");
