@@ -1,6 +1,9 @@
 package ballpuzzle.graph;
 
 import java.awt.Point;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -22,6 +25,7 @@ public class PuzzleGraph {
 		game_graph_ = new ListenableDirectedWeightedGraph<Point, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		viewer = new GraphViewer (game_graph_);
 		viewer.init();
+		generateGraph();
 	}
 	
 	private Point attemptMove(Direction dir) {
@@ -53,16 +57,18 @@ public class PuzzleGraph {
 			if(!game_graph_.containsVertex(new_pos)) {
 				game_graph_.addVertex(new_pos);
 			}
-			DefaultWeightedEdge edge = game_graph_.addEdge(current_pos, new_pos);
-			game_graph_.setEdgeWeight(edge, weight);
+			game_graph_.addEdge(current_pos, new_pos);
+			DefaultWeightedEdge same_edge = game_graph_.getEdge(current_pos, new_pos);
+			game_graph_.setEdgeWeight(same_edge, weight);
 		}
 	}
 	
 	public void generateGraph() {
-		Point current_pos;
+		Point current_pos, initial_pos;
 		Stack<Point> ball_positions = new Stack<Point>();
 		ArrayList<Point> visited_points = new ArrayList<Point>();
 		current_pos = (Point)game_state_.getBallPosition().clone();
+		initial_pos = (Point) current_pos.clone();
 		visited_points.add(current_pos);
 		ball_positions.push(current_pos);
 		game_graph_.addVertex(current_pos);
@@ -74,18 +80,30 @@ public class PuzzleGraph {
 			for(double i = 0.0; i < 4; ++i)
 				updateGraph(i, current_pos, visited_points, ball_positions);
 		}
+		game_state_.setBallPosition(initial_pos);
 	}
 	
+    
 	public Board getGame() {
 		return game_state_;
 	}
 	
-	//TODO TROLHICE PARA TESTAR
 	public static void main(String[] args) {
-		Board board = new Board("level_4.dat");
+	    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		System.out.println("Insira o nome do ficheiro do nivel");
+		String level = null;
+		try {
+			level = br.readLine();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Board board = new Board(level);
 		PuzzleGraph graph = new PuzzleGraph(board);
 		
 		graph.generateGraph();
+		graph.viewer.positionVertexes();
 		graph.viewer.view();
 		while(true);
 	}

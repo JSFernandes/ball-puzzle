@@ -19,6 +19,7 @@ public class Board {
 	private Teleport teleport1_, teleport2_;
 	private Ball ball_;
 	private int size_;
+	private Point goal_point_;
 
 	protected static Tile[][] parseTileset(String[] raw_data, Point ball_position) {
 		Tile[][] tileset = new Tile[raw_data.length][];
@@ -74,7 +75,7 @@ public class Board {
 		size_ = tileset.length;
 		ball_ = new Ball(ball_position);
 		
-		parseTeleports();
+		parseTeleportsAndGoal();
 	}
 	
 	public Board(String file_name) {
@@ -99,9 +100,9 @@ public class Board {
 			Point ball_position = new Point();
 			String[] level_data_array = new String[level_data.size()];
 			level_data.toArray(level_data_array);
-			tileset_ = parseTileset((String[]) level_data_array, ball_position);
+			tileset_ = parseTileset(level_data_array, ball_position);
 			size_ = tileset_.length;
-			parseTeleports();
+			parseTeleportsAndGoal();
 
 			ball_ = new Ball(ball_position);
 		} catch (IOException e) {
@@ -113,6 +114,9 @@ public class Board {
 		return size_;
 	}
 	
+	public Point getGoal() {
+		return goal_point_;
+	}
 	public Tile tileAt(int x, int y) {
 		return tileset_[y][x];
 	}
@@ -201,7 +205,7 @@ public class Board {
 		return result;
 	}
 	
-	private void parseTeleports() {
+	private void parseTeleportsAndGoal() {
 		boolean foundFirst = false;
 		for (int y = 0; y < tileset_.length; ++y) {
 			for (int x = 0; x < tileset_[y].length; ++x) {
@@ -210,7 +214,6 @@ public class Board {
 						teleport2_ = ((Teleport)tileset_[y][x]);
 						teleport2_.setPosition(new Point(x, y));
 						teleport2_.setId(2);
-						return;
 					}
 					else {
 						teleport1_ = ((Teleport) tileset_[y][x]);
@@ -218,6 +221,9 @@ public class Board {
 						teleport1_.setId(1);
 						foundFirst = true;
 					}
+				}
+				else if (tileset_[y][x].getClass() == Goal.class) {
+					goal_point_ = new Point(x, y);
 				}
 			}
 		}

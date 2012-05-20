@@ -9,17 +9,27 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import ballpuzzle.graph.AStar;
+import ballpuzzle.graph.BFS;
+import ballpuzzle.graph.BallPuzzleHeuristic;
+import ballpuzzle.graph.DFS;
+import ballpuzzle.graph.GreedySearch;
+import ballpuzzle.graph.IterativeDFS;
+import ballpuzzle.graph.PathFinder;
+import ballpuzzle.graph.PuzzleGraph;
 import ballpuzzle.logic.Ball;
 import ballpuzzle.logic.Board;
 import ballpuzzle.tiles.Tile;
 import ballpuzzle.util.Direction;
 
-public class BoardPanel extends JPanel implements KeyListener, ActionListener {
+public class BoardPanel extends JPanel implements KeyListener, ActionListener, MouseListener {
 	private static final long serialVersionUID = 6877539859684016004L;
 
 	private BallPuzzle parent_;
@@ -30,6 +40,10 @@ public class BoardPanel extends JPanel implements KeyListener, ActionListener {
 	
 	private boolean is_started_;
 	private boolean is_paused_;
+	
+	Direction[] solution_;
+	private boolean is_solving_;
+	private int solution_step_;
 	
 	private Timer timer_;
 	
@@ -43,9 +57,12 @@ public class BoardPanel extends JPanel implements KeyListener, ActionListener {
 		
 		setFocusable(true);
 		addKeyListener(this);
+		addMouseListener(this);
 		
 		is_paused_ = false;
 		is_started_ = false;
+		
+		is_solving_ = false;
 		
 		timer_ = new Timer(100, this);
 		timer_.start();
@@ -61,6 +78,20 @@ public class BoardPanel extends JPanel implements KeyListener, ActionListener {
 		status_bar_.setText("Level: " + board_.getTitle());
 	}
 	
+	private PathFinder getAlgorithm(String algorithm_name) {
+		if(algorithm_name.equals("AStar"))
+			return new AStar(new PuzzleGraph(board_), new BallPuzzleHeuristic());
+		else if(algorithm_name.equals("BFS"))
+			return new BFS(new PuzzleGraph(board_), new BallPuzzleHeuristic());
+		else if(algorithm_name.equals("DFS"))
+			return new DFS(new PuzzleGraph(board_), new BallPuzzleHeuristic());
+		else if(algorithm_name.equals("Greedy"))
+			return new GreedySearch(new PuzzleGraph(board_), new BallPuzzleHeuristic());
+		else if(algorithm_name.equals("IterativeDFS"))
+			return new IterativeDFS(new PuzzleGraph(board_), new BallPuzzleHeuristic());
+		else
+			return null;
+	}
 	public BoardPanel(BallPuzzle parent) {
 		String[] levels = {
 				"level_1.dat",
@@ -69,6 +100,30 @@ public class BoardPanel extends JPanel implements KeyListener, ActionListener {
 				"level_4.dat",
 				"level_5.dat",
 				"level_6.dat",
+				"level_7.dat",
+				"level_8.dat",
+				"level_9.dat",
+				"level_10.dat",
+				"level_11.dat",
+				"level_12.dat",
+				"level_13.dat",
+				"level_14.dat",
+				"level_15.dat",
+				"level_16.dat",
+				"level_17.dat",
+				"level_18.dat",
+				"level_19.dat",
+				"level_20.dat",
+				"level_21.dat",
+				"level_22.dat",
+				"level_23.dat",
+				"level_24.dat",
+				"level_25.dat",
+				"level_26.dat",
+				"level_27.dat",
+				"level_28.dat",
+				"level_29.dat",
+				"level_30.dat"
 				};
 		
 		initialize(parent, levels);
@@ -79,6 +134,7 @@ public class BoardPanel extends JPanel implements KeyListener, ActionListener {
 	}
 	
 	public void loadNextLevel() {
+		is_solving_ = false;
 		++current_level_;
 		if (current_level_ == levels_.length) {
 			current_level_ = 0;
@@ -183,6 +239,7 @@ public class BoardPanel extends JPanel implements KeyListener, ActionListener {
 		getBall().draw(g2d, -1, -1, offset_x, offset_y, tile_size, this);
 	}
 	
+	@Override
 	public void keyPressed(KeyEvent e) {
 		if (!is_started_) {
 			return;
@@ -199,7 +256,21 @@ public class BoardPanel extends JPanel implements KeyListener, ActionListener {
 			return;
 		}
 		
+		if(is_solving_) {
+			getBall().setMovementDirection(solution_[solution_step_]);
+			++solution_step_;
+			return;
+		}
+		
 		switch (key_code) {
+			case KeyEvent.VK_SPACE:
+				String algorithm = (String) parent_.getComboBox().getSelectedItem();
+				PathFinder completer = getAlgorithm(algorithm);
+				solution_ = completer.findSolution(board_.getBallPosition(), board_.getGoal());
+				is_solving_ = true;
+				solution_step_ = 1;
+				getBall().setMovementDirection(solution_[0]);
+				break;
 			case KeyEvent.VK_R :
 				board_.load(levels_[current_level_]);
 				repaint();
@@ -238,5 +309,35 @@ public class BoardPanel extends JPanel implements KeyListener, ActionListener {
 		if (success) {
 			loadNextLevel();
 		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		grabFocus();
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }
